@@ -17,13 +17,18 @@ class ContactInfo(models.Model):
 
     objects = ContactManager()
 
-    def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
-        data = dict(name=self.name, phone=self.phone, address=self.address)
-        if not ContactInfoUpdate.objects.filter(**data).exists():
+    def __init__(self, *args, **kwargs):
+        super(ContactInfo, self).__init__(*args, **kwargs)
+        self.old_phone = self.phone
+
+    def save(self, *args, **kwargs):
+        if not ContactInfoUpdate.objects.filter(phone=self.old_phone).exists():
+            data = dict(name=self.name, phone=self.phone, address=self.address)
             ContactInfoUpdate.objects.create(**data)
-        print(update_fields)
+        elif not self.old_phone == self.phone:
+            ContactInfoUpdate.objects.filter(phone=self.old_phone).update(phone=self.phone)
         # saving data into default database
-        super(ContactInfo, self).save(using='default')
+        super(ContactInfo, self).save(*args, **kwargs)
 
     def __str__(self):
         return self.name

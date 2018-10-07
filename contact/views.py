@@ -9,7 +9,6 @@ from contact.v2.models import ContactInfoUpdate
 class ContactInformationView(APIView):
 
     def get(self, request, *args, **kwargs):
-        print(args, kwargs)
 
         if request.version == 'v1':
             response = ContactInfo.objects.v1_data()
